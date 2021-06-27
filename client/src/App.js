@@ -11,8 +11,6 @@ function App () {
   const [accounts, setAccounts] = useState([]);
   const [contract, setContract] = useState([]);
   const [tran, setTransactions] = useState([]);
-  const initialFormState = { name: '', transactionType: '', amount: '' }
-  const [inputTransaction, setInputTransacion] = useState(initialFormState)
 
 
   const doSomething = function (e) {
@@ -115,7 +113,7 @@ function App () {
           />
           <label>Type</label>
           <select name="type" id="type">
-            <option value="icnome">Income</option>
+            <option value="income">Income</option>
             <option value="expense">Expense</option>
           </select>
           <label>Amount</label>
