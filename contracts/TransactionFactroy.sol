@@ -21,7 +21,7 @@ contract TransactionFactroy {
   );
 
   Transaction[] public transactions;
-  uint income = 10000;
+  uint public income = 10000;
 
   function createTransaction(address _owner, string memory _name, string memory _type, uint _amount) public {
     transactions.push(Transaction(_name, _type, _amount));

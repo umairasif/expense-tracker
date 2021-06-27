@@ -11,6 +11,28 @@ function App () {
   const [accounts, setAccounts] = useState([]);
   const [contract, setContract] = useState([]);
   const [tran, setTransactions] = useState([]);
+  const initialFormState = { name: '', transactionType: '', amount: '' }
+  const [inputTransaction, setInputTransacion] = useState(initialFormState)
+
+
+  const doSomething = function (e) {
+      e.preventDefault();
+      var name = document.getElementById('name').value;
+      var transactionType =  document.getElementById('type').value;
+      var amount =  document.getElementById('amount').value;
+      saveTransaction(name, transactionType, amount);
+      
+  };
+  const saveTransaction = async (name, type, amount) => {
+    const result = await contract.methods.createTransaction(accounts[0], name, type, amount).send({ 
+      from: accounts[0],
+      gas:3000000
+    }).on("receipt", function(receipt) {
+        alert('Transaction added');
+        window.location.reload();
+    })
+  }
+
   useEffect(() => {
     const init = async() => {
       try {
@@ -52,6 +74,8 @@ function App () {
         //   gas:3000000
         // });
         const response = await contract.methods.getTransactionsByOwner().call();
+        var temp = [];
+
         for(var i = 0; i < response.length; i++) {
           const record = await contract.methods.transactions(response[i]).call();
           var obj = {};
@@ -60,22 +84,68 @@ function App () {
               obj[key] = record[key];
             }
           });
-          setTransactions(...tran, obj);
-      }
+          temp.push(obj);
+        }
+        setTransactions(tran => [...tran, temp]);
       } else {
-        
       }
-
-      // Get the value from the contract to prove it worked.
-
     }
     if(typeof web3 !== 'undefined'
     && typeof accounts !== 'undefined'
-    && typeof contract !== 'undefined') {
+    && typeof contract !== 'undefined'
+    && tran.length < 1
+    ) {
       load();
     } 
-  }, [web3, accounts, contract]);
+  }, [web3, accounts, contract, tran]);
 
+  let index=0;
+
+  if(typeof tran[0] === 'undefined') {
+  } else {
+    return (
+      <div className="App">
+        <form
+          onSubmit={doSomething}
+        >
+          <label>Name</label>
+          <input
+            type="text"
+            id="name"
+          />
+          <label>Type</label>
+          <select name="type" id="type">
+            <option value="icnome">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+          <label>Amount</label>
+          <input
+            type="text"
+            id="amount"
+          />
+          <button>Add transaction</button>
+        </form>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Transaction Type</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tran[0].map(t=>(
+              <tr key={index++}>
+                <td key={1}>{t.name}</td>
+                <td key={2}>{t.transactionType}</td>
+                <td key={3}>{t.amount}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
   if(typeof web3 === 'undefined') {
     return <div>Loading web3, account and contract</div>;
   } 
@@ -94,6 +164,7 @@ function App () {
       <div>The stored value is: {storageValue}</div>
     </div>
   );
+  
 }
 
 export default App;
